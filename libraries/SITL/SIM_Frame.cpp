@@ -45,6 +45,23 @@ static Motor quad_x_motors[] =
     Motor(AP_MOTORS_MOT_4,  135, AP_MOTORS_MATRIX_YAW_FACTOR_CW,  2),
 };
 
+static Motor hydrone_motors[] =
+{
+    // --- Motores aéreos (quad-X) ---
+    Motor(AP_MOTORS_MOT_1,   45, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 1), // front-right
+    Motor(AP_MOTORS_MOT_2, -135, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 3), // back-left
+    Motor(AP_MOTORS_MOT_3,  -45, AP_MOTORS_MATRIX_YAW_FACTOR_CW,  4), // back-right
+    Motor(AP_MOTORS_MOT_4,  135, AP_MOTORS_MATRIX_YAW_FACTOR_CW,  2), // front-left
+
+    // --- Motores aquáticos horizontais (frente/ré, yaw neutro ou custom) ---
+    // Exemplo: empuxo para frente (+X) e trás (-X)
+    //Motor(AP_MOTORS_MOT_5,    0,  0.0f, 5), // forward thruster
+    //Motor(AP_MOTORS_MOT_6,  180, 0.0f, 6), // backward thruster
+
+    // --- Motor de flutuação (empuxo vertical sem yaw) ---
+    //Motor(AP_MOTORS_MOT_7,   90, 0.0f, 7), // buoyancy / vertical
+};
+
 // motor order to match betaflight conventions
 // See: https://fpvfrenzy.com/betaflight-motor-order/
 static Motor quad_bf_x_motors[] =
@@ -383,6 +400,8 @@ static Frame supported_frames[] =
     Frame("quad",      4, quad_plus_motors),
     Frame("copter",    4, quad_plus_motors),
     Frame("x",         4, quad_x_motors),
+    //Frame("hydrone",    7, hydrone_motors),
+    Frame("hydrone",    4, hydrone_motors),
     Frame("bfxrev",    4, quad_bf_x_rev_motors),
     Frame("bfx",       4, quad_bf_x_motors),
 #if AP_SIM_FRAME_COPTER_DOTRIACONTA_OCTAQUAD_X_ENABLED
