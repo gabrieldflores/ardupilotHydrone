@@ -74,7 +74,7 @@ const AP_Param::GroupInfo AP_TemperatureSensor_MAX31865::var_info[] = {
     // @User: Standard
     AP_GROUPINFO("RTD_REF", 9, AP_TemperatureSensor_MAX31865, reference_resistance, 400),
 
-    // CHECK/UPDATE INDEX TABLE IN AP_TemperatureSensor_Backend.cpp WHEN CHANGING OR ADDING PARAMETERS
+    // This param table is shared between backends, check for index clashes before adding more params!
 
     AP_GROUPEND
 

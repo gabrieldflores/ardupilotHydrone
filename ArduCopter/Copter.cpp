@@ -159,6 +159,7 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
 #endif
     SCHED_TASK(update_batt_compass,   10,    120, 15),
     SCHED_TASK_CLASS(RC_Channels, (RC_Channels*)&copter.g2.rc_channels, read_aux_all,    10,  50,  18),
+    SCHED_TASK(arm_motors_check,      10,     50, 21),
 #if TOY_MODE_ENABLED
     SCHED_TASK_CLASS(ToyMode,              &copter.g2.toy_mode,         update,          10,  50,  24),
 #endif
@@ -224,6 +225,9 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
 
 #if HAL_LOGGING_ENABLED
     SCHED_TASK_CLASS(AP_Scheduler,         &copter.scheduler,           update_logging, 0.1,  75, 126),
+#endif
+#if AP_RPM_ENABLED
+    SCHED_TASK_CLASS(AP_RPM,               &copter.rpm_sensor,          update,          40, 200, 129),
 #endif
 #if AP_TEMPCALIBRATION_ENABLED
     SCHED_TASK_CLASS(AP_TempCalibration,   &copter.g2.temp_calibration, update,          10, 100, 135),
@@ -318,7 +322,7 @@ bool Copter::set_target_pos_NED(const Vector3f& target_pos, bool use_yaw, float 
 
     const Vector3f pos_neu_cm(target_pos.x * 100.0f, target_pos.y * 100.0f, -target_pos.z * 100.0f);
 
-    return mode_guided.set_destination(pos_neu_cm, use_yaw, radians(yaw_deg), use_yaw_rate, radians(yaw_rate_degs), yaw_relative, terrain_alt);
+    return mode_guided.set_destination(pos_neu_cm, use_yaw, yaw_deg * 100.0, use_yaw_rate, yaw_rate_degs * 100.0, yaw_relative, terrain_alt);
 }
 
 // set target position and velocity (for use by scripting)
@@ -347,7 +351,7 @@ bool Copter::set_target_posvelaccel_NED(const Vector3f& target_pos, const Vector
     const Vector3f vel_neu_cms(target_vel.x * 100.0f, target_vel.y * 100.0f, -target_vel.z * 100.0f);
     const Vector3f accel_neu_cms(target_accel.x * 100.0f, target_accel.y * 100.0f, -target_accel.z * 100.0f);
 
-    return mode_guided.set_destination_posvelaccel(pos_neu_cm, vel_neu_cms, accel_neu_cms, use_yaw, radians(yaw_deg), use_yaw_rate, radians(yaw_rate_degs), yaw_relative);
+    return mode_guided.set_destination_posvelaccel(pos_neu_cm, vel_neu_cms, accel_neu_cms, use_yaw, yaw_deg * 100.0, use_yaw_rate, yaw_rate_degs * 100.0, yaw_relative);
 }
 
 bool Copter::set_target_velocity_NED(const Vector3f& vel_ned)
@@ -375,7 +379,7 @@ bool Copter::set_target_velaccel_NED(const Vector3f& target_vel, const Vector3f&
     const Vector3f vel_neu_cms(target_vel.x * 100.0f, target_vel.y * 100.0f, -target_vel.z * 100.0f);
     const Vector3f accel_neu_cms(target_accel.x * 100.0f, target_accel.y * 100.0f, -target_accel.z * 100.0f);
 
-    mode_guided.set_velaccel(vel_neu_cms, accel_neu_cms, use_yaw, radians(yaw_deg), use_yaw_rate, radians(yaw_rate_degs), relative_yaw);
+    mode_guided.set_velaccel(vel_neu_cms, accel_neu_cms, use_yaw, yaw_deg * 100.0, use_yaw_rate, yaw_rate_degs * 100.0, relative_yaw);
     return true;
 }
 
@@ -484,7 +488,7 @@ bool Copter::set_circle_rate(float rate_degs)
 // set desired speed (m/s). Used for scripting.
 bool Copter::set_desired_speed(float speed)
 {
-    return flightmode->set_speed_xy_cms(speed * 100.0f);
+    return flightmode->set_speed_xy(speed * 100.0f);
 }
 
 #if MODE_AUTO_ENABLED
@@ -735,10 +739,8 @@ void Copter::three_hz_loop()
     // check for deadreckoning failsafe
     failsafe_deadreckon_check();
 
-#if AP_RC_TRANSMITTER_TUNING_ENABLED
     //update transmitter based in flight tuning
     tuning();
-#endif  // AP_RC_TRANSMITTER_TUNING_ENABLED
 
     // check if avoidance should be enabled based on alt
     low_alt_avoidance();
@@ -936,7 +938,7 @@ bool Copter::get_wp_distance_m(float &distance) const
 bool Copter::get_wp_bearing_deg(float &bearing) const
 {
     // see GCS_MAVLINK_Copter::send_nav_controller_output()
-    bearing = flightmode->wp_bearing_deg();
+    bearing = flightmode->wp_bearing() * 0.01;
     return true;
 }
 
@@ -944,7 +946,7 @@ bool Copter::get_wp_bearing_deg(float &bearing) const
 bool Copter::get_wp_crosstrack_error_m(float &xtrack_error) const
 {
     // see GCS_MAVLINK_Copter::send_nav_controller_output()
-    xtrack_error = flightmode->crosstrack_error_m() * 0.01;
+    xtrack_error = flightmode->crosstrack_error() * 0.01;
     return true;
 }
 
@@ -978,6 +980,7 @@ Copter::Copter(void)
 }
 
 Copter copter;
+
 AP_Vehicle& vehicle = copter;
 
 AP_HAL_MAIN_CALLBACKS(&copter);

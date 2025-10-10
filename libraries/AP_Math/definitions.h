@@ -3,7 +3,6 @@
 #include <cmath>
 
 #include <AP_HAL/AP_HAL_Boards.h>
-#include <AP_HAL/AP_HAL_Macros.h>  // sets AP_MATH_ALLOW_DOUBLE_FUNCTIONS
 
 #ifdef M_PI
 # undef M_PI
@@ -36,7 +35,7 @@
 // GPS Specific double precision conversions
 // The precision here does matter when using the wsg* functions for converting
 // between LLH and ECEF coordinates.
-#if AP_MATH_ALLOW_DOUBLE_FUNCTIONS
+#ifdef ALLOW_DOUBLE_MATH_FUNCTIONS
 static const double DEG_TO_RAD_DOUBLE = asin(1) / 90;
 static const double RAD_TO_DEG_DOUBLE = 1 / DEG_TO_RAD_DOUBLE;
 #endif
@@ -66,7 +65,7 @@ static const double WGS84_F = ((double)1.0 / WGS84_IF);
 static const double WGS84_B = (WGS84_A * (1 - WGS84_F));
 
 // Eccentricity of the Earth
-#if AP_MATH_ALLOW_DOUBLE_FUNCTIONS
+#ifdef ALLOW_DOUBLE_MATH_FUNCTIONS
 static const double WGS84_E = (sqrt(2 * WGS84_F - WGS84_F * WGS84_F));
 #endif
 

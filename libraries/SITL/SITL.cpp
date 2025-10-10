@@ -255,7 +255,7 @@ const AP_Param::GroupInfo SIM::var_info[] = {
     AP_GROUPINFO("ENGINE_FAIL",   58, SIM,  engine_fail,  0),
     AP_SUBGROUPINFO(models, "",   59, SIM, SIM::ModelParm),
     AP_SUBGROUPEXTENSION("",      60, SIM,  var_mag),
-#if AP_SIM_GPS_ENABLED
+#if HAL_SIM_GPS_ENABLED
     AP_SUBGROUPEXTENSION("",      61, SIM,  var_gps),
 #endif
     AP_SUBGROUPEXTENSION("",      62, SIM,  var_info3),
@@ -641,13 +641,11 @@ const AP_Param::GroupInfo SIM::var_info3[] = {
     // @Group: VOLZ_
     // @Path: ./SIM_Volz.cpp
     AP_SUBGROUPINFO(volz_sim, "VOLZ_", 55, SIM, Volz),
-#endif  //  AP_SIM_VOLZ_ENABLED
+#endif
 
-#if AP_SIM_VICON_ENABLED
     // @Group: VICON_
     // @Path: ./SIM_Vicon.cpp
     AP_SUBGROUPINFO(vicon, "VICON_", 56, SIM, ViconParms),
-#endif  // AP_SIM_VICON_ENABLED
 
 #ifdef SFML_JOYSTICK
     AP_SUBGROUPEXTENSION("",      63, SIM,  var_sfml_joystick),
@@ -657,7 +655,7 @@ const AP_Param::GroupInfo SIM::var_info3[] = {
 };
 
 
-#if AP_SIM_GPS_ENABLED
+#if HAL_SIM_GPS_ENABLED
 // GPS SITL parameters
 const AP_Param::GroupInfo SIM::var_gps[] = {
     //  1 was GPS_DISABLE
@@ -736,7 +734,7 @@ const AP_Param::GroupInfo SIM::var_gps[] = {
 
    AP_GROUPEND
 };
-#endif  // AP_SIM_GPS_ENABLED
+#endif  // HAL_SIM_GPS_ENABLED
 
 // Mag SITL parameters
 const AP_Param::GroupInfo SIM::var_mag[] = {
@@ -1317,11 +1315,11 @@ const AP_Param::GroupInfo SIM::ModelParm::var_info[] = {
     AP_SUBGROUPINFO(tether_sim, "TETH_", 6, SIM::ModelParm, TetherSim),
 #endif
 
-#if AP_SIM_AIS_ENABLED
+#if HAL_SIM_AIS_ENABLED
     // @Group: AIS_
     // @Path: ./SIM_AIS.cpp
     AP_SUBGROUPPTR(ais_ptr, "AIS_", 7, SIM::ModelParm, AIS),
-#endif  // AP_SIM_AIS_ENABLED
+#endif
 
     AP_GROUPEND
 };

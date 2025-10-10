@@ -26,7 +26,7 @@ bool ModeAcro_Heli::init(bool ignore_checks)
 // should be called at 100hz or more
 void ModeAcro_Heli::run()
 {
-    float target_roll_rads, target_pitch_rads, target_yaw_rads;
+    float target_roll_cds, target_pitch_cds, target_yaw_cds;
     float pilot_throttle_scaled;
 
     // Tradheli should not reset roll, pitch, yaw targets when motors are not runup while flying, because
@@ -69,29 +69,29 @@ void ModeAcro_Heli::run()
 
     if (!motors->has_flybar()){
         // convert the input to the desired body frame rate
-        get_pilot_desired_rates_rads(target_roll_rads, target_pitch_rads, target_yaw_rads);
+        get_pilot_desired_rates_cds(channel_roll->norm_input_dz(), channel_pitch->norm_input_dz(), channel_yaw->norm_input_dz(), target_roll_cds, target_pitch_cds, target_yaw_cds);
         // only mimic flybar response when trainer mode is disabled
         if ((Trainer)g.acro_trainer.get() == Trainer::OFF) {
             // while landed always leak off target attitude to current attitude
             if (copter.ap.land_complete) {
-                virtual_flybar(target_roll_rads, target_pitch_rads, target_yaw_rads, 3.0f, 3.0f);
+                virtual_flybar(target_roll_cds, target_pitch_cds, target_yaw_cds, 3.0f, 3.0f);
             // while flying use acro balance parameters for leak rate
             } else {
-                virtual_flybar(target_roll_rads, target_pitch_rads, target_yaw_rads, g.acro_balance_pitch, g.acro_balance_roll);
+                virtual_flybar(target_roll_cds, target_pitch_cds, target_yaw_cds, g.acro_balance_pitch, g.acro_balance_roll);
             }
         }
         if (motors->supports_yaw_passthrough()) {
             // if the tail on a flybar heli has an external gyro then
             // also use no deadzone for the yaw control and
             // pass-through the input direct to output.
-            target_yaw_rads = cd_to_rad(channel_yaw->get_control_in_zero_dz());
+            target_yaw_cds = channel_yaw->get_control_in_zero_dz();
         }
 
         // run attitude controller
         if (g2.acro_options.get() & uint8_t(AcroOptions::RATE_LOOP_ONLY)) {
-            attitude_control->input_rate_bf_roll_pitch_yaw_2_rads(target_roll_rads, target_pitch_rads, target_yaw_rads);
+            attitude_control->input_rate_bf_roll_pitch_yaw_2_cds(target_roll_cds, target_pitch_cds, target_yaw_cds);
         } else {
-            attitude_control->input_rate_bf_roll_pitch_yaw_rads(target_roll_rads, target_pitch_rads, target_yaw_rads);
+            attitude_control->input_rate_bf_roll_pitch_yaw_cds(target_roll_cds, target_pitch_cds, target_yaw_cds);
         }
     }else{
         /*
@@ -111,7 +111,7 @@ void ModeAcro_Heli::run()
             // if there is no external gyro then run the usual
             // ACRO_YAW_P gain on the input control, including
             // deadzone
-            yaw_in_cds = rad_to_cd(get_pilot_desired_yaw_rate_rads());
+            yaw_in_cds = get_pilot_desired_yaw_rate_cds();
         }
 
         // run attitude controller
@@ -127,29 +127,29 @@ void ModeAcro_Heli::run()
 
 
 // virtual_flybar - acts like a flybar by leaking target atttitude back to current attitude
-void ModeAcro_Heli::virtual_flybar( float &roll_out_rads, float &pitch_out_rads, float &yaw_out_rads, float pitch_leak, float roll_leak)
+void ModeAcro_Heli::virtual_flybar( float &roll_out_cds, float &pitch_out_cds, float &yaw_out_cds, float pitch_leak, float roll_leak)
 {
-    Vector3f rate_ef_level_rads, rate_bf_level_rads;
+    Vector3f rate_ef_level_cds, rate_bf_level_cds;
 
     // get attitude targets
-    const Vector3f& att_target_rad = attitude_control->get_att_target_euler_rad();
+    const Vector3f att_target_cd = attitude_control->get_att_target_euler_cd();
 
     // Calculate earth frame rate command for roll leak to current attitude
-    rate_ef_level_rads.x = -wrap_PI(att_target_rad.x - ahrs.get_roll_rad()) * roll_leak;
+    rate_ef_level_cds.x = -wrap_180_cd(att_target_cd.x - ahrs.roll_sensor) * roll_leak;
 
     // Calculate earth frame rate command for pitch leak to current attitude
-    rate_ef_level_rads.y = -wrap_PI(att_target_rad.y - ahrs.get_pitch_rad()) * pitch_leak;
+    rate_ef_level_cds.y = -wrap_180_cd(att_target_cd.y - ahrs.pitch_sensor) * pitch_leak;
 
     // Calculate earth frame rate command for yaw
-    rate_ef_level_rads.z = 0;
+    rate_ef_level_cds.z = 0;
 
     // convert earth-frame leak rates to body-frame leak rates
-    attitude_control->euler_rate_to_ang_vel(attitude_control->get_attitude_target_quat(), rate_ef_level_rads, rate_bf_level_rads);
+    attitude_control->euler_rate_to_ang_vel(attitude_control->get_attitude_target_quat(), rate_ef_level_cds, rate_bf_level_cds);
 
     // combine earth frame rate corrections with rate requests
-    roll_out_rads += rate_bf_level_rads.x;
-    pitch_out_rads += rate_bf_level_rads.y;
-    yaw_out_rads += rate_bf_level_rads.z;
+    roll_out_cds += rate_bf_level_cds.x;
+    pitch_out_cds += rate_bf_level_cds.y;
+    yaw_out_cds += rate_bf_level_cds.z;
 
 }
 #endif  //HELI_FRAME

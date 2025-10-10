@@ -1670,10 +1670,9 @@ bool AP_CRSF_Telem::send_write_response(uint8_t length, const char* data)
         switch (spw.type) {
         case ScriptedParameterEvents::PARAMETER_READ:
             // respond with parameter entry updated with the new data
-            // we don't care about old data so old length of 0 is fine
-            spw.param->data = (const char*)mem_realloc((char*)spw.param->data, 0, length);
+            spw.param->data = (const char*)hal.util->std_realloc((char*)spw.param->data, length);
             if (spw.param->data == nullptr) {
-                return false; // old data is untouched
+                return false;
             }
             memcpy((char*)spw.param->data, data, length);
             spw.param->length = length;
@@ -1719,9 +1718,7 @@ AP_CRSF_Telem::ScriptedParameter* AP_CRSF_Telem::ScriptedMenu::find_parameter(ui
 
 AP_CRSF_Telem::ScriptedParameter* AP_CRSF_Telem::ScriptedMenu::add_parameter(uint8_t length, const char* data)
 {
-    ScriptedParameter* new_params = (ScriptedParameter*)mem_realloc(params,
-        sizeof(ScriptedParameter) * num_params,
-        sizeof(ScriptedParameter) * (num_params+1));
+    ScriptedParameter* new_params = (ScriptedParameter*)hal.util->std_realloc(params, sizeof(ScriptedParameter) * (num_params+1));
     if (new_params == nullptr) {
         return nullptr;
     }

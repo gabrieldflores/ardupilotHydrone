@@ -18,7 +18,7 @@
 
 #include "SIM_JSON_Master.h"
 
-#if AP_SIM_JSON_MASTER_ENABLED
+#if HAL_SIM_JSON_MASTER_ENABLED
 
 #include <AP_Logger/AP_Logger.h>
 #include <errno.h>
@@ -191,4 +191,4 @@ void JSON_Master::send(const struct sitl_fdm &output, const Vector3d &position)
 }
 
 
-#endif  // AP_SIM_JSON_MASTER_ENABLED
+#endif  // HAL_SIM_JSON_MASTER_ENABLED

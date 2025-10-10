@@ -152,6 +152,11 @@ void Copter::init_ardupilot()
     g2.beacon.init();
 #endif
 
+#if AP_RPM_ENABLED
+    // initialise AP_RPM library
+    rpm_sensor.init();
+#endif
+
 #if MODE_AUTO_ENABLED
     // initialise mission library
     mode_auto.mission.init();
@@ -372,7 +377,6 @@ void Copter::allocate_motors(void)
         case AP_Motors::MOTOR_FRAME_DODECAHEXA:
         case AP_Motors::MOTOR_FRAME_DECA:
         case AP_Motors::MOTOR_FRAME_SCRIPTING_MATRIX:
-        case AP_Motors::MOTOR_FRAME_HYDRONE:
         default:
             motors = NEW_NOTHROW AP_MotorsMatrix(copter.scheduler.get_loop_rate_hz());
             motors_var_info = AP_MotorsMatrix::var_info;

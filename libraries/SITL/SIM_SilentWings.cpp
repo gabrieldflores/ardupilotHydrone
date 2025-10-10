@@ -16,11 +16,9 @@
   simulator connector for ardupilot version of SilentWings
 */
 
-#include "SIM_config.h"
-
-#if AP_SIM_SILENTWINGS_ENABLED
-
 #include "SIM_SilentWings.h"
+
+#if HAL_SIM_SILENTWINGS_ENABLED
 
 #include <stdio.h>
 #include <errno.h>
@@ -329,4 +327,4 @@ void SilentWings::update(const struct sitl_input &input)
     }
 }
 
-#endif  // AP_SIM_SILENTWINGS_ENABLED
+#endif  // HAL_SIM_SILENTWINGS_ENABLED

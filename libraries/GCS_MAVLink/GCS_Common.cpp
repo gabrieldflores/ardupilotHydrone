@@ -111,8 +111,6 @@
 extern AP_IOMCU iomcu;
 #endif
 
-#include "GCS_FTP.h"
-
 #include <ctype.h>
 
 extern const AP_HAL::HAL& hal;
@@ -1254,7 +1252,7 @@ uint16_t GCS_MAVLINK::get_reschedule_interval_ms(const deferred_message_bucket_t
         interval_ms *= 4;
     }
 #if AP_MAVLINK_FTP_ENABLED
-    if (AP_HAL::millis() - GCS_FTP::get_last_send_ms(chan) < 1000) {
+    if (AP_HAL::millis() - ftp.last_send_ms < 1000) {
         // we are sending ftp replies
         interval_ms *= 4;
     }
@@ -3800,7 +3798,7 @@ void GCS_MAVLINK::handle_statustext(const mavlink_message_t &msg) const
     char text[text_len] = { 'G','C','S',':'};
     uint8_t offset = strlen(text);
 
-    if (!gcs().sysid_is_gcs(msg.sysid)) {
+    if (msg.sysid != gcs().sysid_gcs()) {
         offset = hal.util->snprintf(text,
                                     max_prefix_len,
                                     "SRC=%u/%u:",
@@ -4091,7 +4089,7 @@ void GCS_MAVLINK::handle_command_ack(const mavlink_message_t &msg)
 
     AP_AccelCal *accelcal = AP::ins().get_acal();
     if (accelcal != nullptr) {
-        accelcal->handle_command_ack(packet, msg.sysid, msg.compid);
+        accelcal->handle_command_ack(packet);
     }
 #if AP_GENERATOR_LOWEHEISER_ENABLED
     // this might be an ACK from a loweheiser generator:
@@ -4106,7 +4104,7 @@ void GCS_MAVLINK::handle_command_ack(const mavlink_message_t &msg)
 // control of switch position and RC PWM values.
 void GCS_MAVLINK::handle_rc_channels_override(const mavlink_message_t &msg)
 {
-    if (!gcs().sysid_is_gcs(msg.sysid)) {
+    if(msg.sysid != gcs().sysid_gcs()) {
         return; // Only accept control from our gcs
     }
 
@@ -4269,7 +4267,7 @@ void GCS_MAVLINK::handle_heartbeat(const mavlink_message_t &msg)
 {
     // if the heartbeat is from our GCS then we don't failsafe for
     // now...
-    if (gcs().sysid_is_gcs(msg.sysid)) {
+    if (msg.sysid == gcs().sysid_gcs()) {
         sysid_mygcs_seen(AP_HAL::millis());
     }
 }
@@ -4331,7 +4329,7 @@ void GCS_MAVLINK::handle_message(const mavlink_message_t &msg)
 
 #if AP_MAVLINK_FTP_ENABLED
     case MAVLINK_MSG_ID_FILE_TRANSFER_PROTOCOL:
-        GCS_FTP::handle_file_transfer_protocol(msg, chan);
+        handle_file_transfer_protocol(msg);
         break;
 #endif
 
@@ -4860,7 +4858,7 @@ MAV_RESULT GCS_MAVLINK::_handle_command_preflight_calibration(const mavlink_comm
         }
         // start accel cal
         AP::ins().acal_init();
-        AP::ins().get_acal()->start(this, msg.sysid, msg.compid);
+        AP::ins().get_acal()->start(this);
         return MAV_RESULT_ACCEPTED;
     }
 #endif
@@ -5375,7 +5373,7 @@ MAV_RESULT GCS_MAVLINK::handle_command_do_set_roi(const Location &roi_loc)
         return MAV_RESULT_FAILED;
     }
 
-    if (!roi_loc.initialised()) {
+    if (roi_loc.lat == 0 && roi_loc.lng == 0 && roi_loc.alt == 0) {
         mount->clear_roi_target();
     } else {
         mount->set_roi_target(roi_loc);
@@ -7077,7 +7075,7 @@ bool GCS_MAVLINK::accept_packet(const mavlink_status_t &status,
         return true;
     }
 
-    if (gcs().sysid_is_gcs(msg.sysid)) {
+    if (msg.sysid == gcs().sysid_gcs()) {
         return true;
     }
 
@@ -7329,7 +7327,7 @@ void GCS_MAVLINK::manual_override(RC_Channel *c, int16_t value_in, const uint16_
 
 void GCS_MAVLINK::handle_manual_control(const mavlink_message_t &msg)
 {
-    if (!gcs().sysid_is_gcs(msg.sysid)) {
+    if (msg.sysid != gcs().sysid_gcs()) {
         return; // only accept control from our gcs
     }
 

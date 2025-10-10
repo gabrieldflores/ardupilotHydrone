@@ -526,7 +526,7 @@ void ModeAuto::circle_movetoedge_start(const Location &circle_center, float radi
         Location circle_edge(circle_edge_neu, Location::AltFrame::ABOVE_ORIGIN);
 
         // convert altitude to same as command
-        circle_edge.copy_alt_from(circle_center);
+        circle_edge.set_alt_cm(circle_center.alt, circle_center.get_alt_frame());
 
         // initialise wpnav to move to edge of circle
         if (!wp_nav->set_wp_destination_loc(circle_edge)) {
@@ -535,7 +535,7 @@ void ModeAuto::circle_movetoedge_start(const Location &circle_center, float radi
         }
 
         // if we are outside the circle, point at the edge, otherwise hold yaw
-        const float dist_to_center = get_horizontal_distance(pos_control->get_pos_estimate_NEU_cm().xy().tofloat(), copter.circle_nav->get_center_NEU_cm().xy().tofloat());
+        const float dist_to_center = get_horizontal_distance_cm(pos_control->get_pos_estimate_NEU_cm().xy().tofloat(), copter.circle_nav->get_center_NEU_cm().xy().tofloat());
         // initialise yaw
         // To-Do: reset the yaw only when the previous navigation command is not a WP.  this would allow removing the special check for ROI
         if (auto_yaw.mode() != AutoYaw::Mode::ROI) {
@@ -647,21 +647,21 @@ bool ModeAuto::use_pilot_yaw(void) const
     return allow_yaw_option || rtl_allow_yaw || landing;
 }
 
-bool ModeAuto::set_speed_xy_cms(float speed_xy_cms)
+bool ModeAuto::set_speed_xy(float speed_xy_cms)
 {
     copter.wp_nav->set_speed_NE_cms(speed_xy_cms);
     desired_speed_override.xy = speed_xy_cms * 0.01;
     return true;
 }
 
-bool ModeAuto::set_speed_up_cms(float speed_up_cms)
+bool ModeAuto::set_speed_up(float speed_up_cms)
 {
     copter.wp_nav->set_speed_up_cms(speed_up_cms);
     desired_speed_override.up = speed_up_cms * 0.01;
     return true;
 }
 
-bool ModeAuto::set_speed_down_cms(float speed_down_cms)
+bool ModeAuto::set_speed_down(float speed_down_cms)
 {
     copter.wp_nav->set_speed_down_cms(speed_down_cms);
     desired_speed_override.down = speed_down_cms * 0.01;
@@ -865,15 +865,15 @@ float ModeAuto::wp_distance_m() const
     }
 }
 
-float ModeAuto::wp_bearing_deg() const
+int32_t ModeAuto::wp_bearing() const
 {
     switch (_mode) {
     case SubMode::CIRCLE:
-        return degrees(copter.circle_nav->get_bearing_to_target_rad());
+        return copter.circle_nav->get_bearing_to_target_cd();
     case SubMode::WP:
     case SubMode::CIRCLE_MOVE_TO_EDGE:
     default:
-        return degrees(wp_nav->get_wp_bearing_to_destination_rad());
+        return wp_nav->get_wp_bearing_to_destination_cd();
     }
 }
 
@@ -1223,13 +1223,12 @@ void ModeAuto::nav_attitude_time_run()
     target_climb_rate_cms = get_avoidance_adjusted_climbrate_cms(target_climb_rate_cms);
 
     // limit and scale lean angles
-    // todo: change euler magnitiude limit to lean angle limit
-    const float angle_limit_rad = MAX(radians(10.0f), MIN(attitude_control->lean_angle_max_rad(), attitude_control->get_althold_lean_angle_max_rad()));
-    Vector2f target_rp_rad(radians(nav_attitude_time.roll_deg), radians(nav_attitude_time.pitch_deg));
-    target_rp_rad.limit_length(angle_limit_rad);
+    const float angle_limit_cd = MAX(1000.0f, MIN(copter.aparm.angle_max, attitude_control->get_althold_lean_angle_max_cd()));
+    Vector2f target_rp_cd(nav_attitude_time.roll_deg * 100, nav_attitude_time.pitch_deg * 100);
+    target_rp_cd.limit_length(angle_limit_cd);
 
     // send targets to attitude controller
-    attitude_control->input_euler_angle_roll_pitch_yaw_rad(target_rp_rad.x, target_rp_rad.y, radians(nav_attitude_time.yaw_deg), true);
+    attitude_control->input_euler_angle_roll_pitch_yaw_cd(target_rp_cd.x, target_rp_cd.y, nav_attitude_time.yaw_deg * 100, true);
 
     // Send the commanded climb rate to the position controller
     pos_control->set_pos_target_U_from_climb_rate_cm(target_climb_rate_cms);
@@ -1538,7 +1537,7 @@ Location ModeAuto::loc_from_cmd(const AP_Mission::Mission_Command& cmd, const Lo
             ret.set_alt_cm(default_alt, ret.get_alt_frame());
         } else {
             // default to default_loc's altitude and frame
-            ret.copy_alt_from(default_loc);
+            ret.set_alt_cm(default_loc.alt, default_loc.get_alt_frame());
         }
     }
     return ret;
@@ -1930,9 +1929,9 @@ void ModeAuto::do_within_distance(const AP_Mission::Mission_Command& cmd)
 
 void ModeAuto::do_yaw(const AP_Mission::Mission_Command& cmd)
 {
-    auto_yaw.set_fixed_yaw_rad(
-        radians(cmd.content.yaw.angle_deg),
-        radians(cmd.content.yaw.turn_rate_dps),
+    auto_yaw.set_fixed_yaw(
+        cmd.content.yaw.angle_deg,
+        cmd.content.yaw.turn_rate_dps,
         cmd.content.yaw.direction,
         cmd.content.yaw.relative_angle > 0);
 }
@@ -1964,7 +1963,7 @@ void ModeAuto::do_change_speed(const AP_Mission::Mission_Command& cmd)
 
 void ModeAuto::do_set_home(const AP_Mission::Mission_Command& cmd)
 {
-    if (cmd.p1 == 1 || !cmd.content.location.initialised()) {
+    if (cmd.p1 == 1 || (cmd.content.location.lat == 0 && cmd.content.location.lng == 0 && cmd.content.location.alt == 0)) {
         if (!copter.set_home_to_current_location(false)) {
             // ignore failure
         }

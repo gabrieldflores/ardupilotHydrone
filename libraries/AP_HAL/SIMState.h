@@ -62,7 +62,7 @@ public:
 
     void update();
 
-#if AP_SIM_GPS_ENABLED
+#if HAL_SIM_GPS_ENABLED
     void set_gps0(SITL::GPS *_gps) { gps[0] = _gps; }
 #endif
 
@@ -113,15 +113,13 @@ private:
     SITL::SoloGimbal *gimbal;
 #endif
 
-#if AP_SIM_ADSB_ENABLED
+#if HAL_SIM_ADSB_ENABLED
     // simulated ADSb
     SITL::ADSB *adsb;
-#endif  // AP_SIM_ADSB_ENABLED
+#endif
 
     // simulated vicon system:
-#if AP_SIM_VICON_ENABLED
     SITL::Vicon *vicon;
-#endif  // AP_SIM_VICON_ENABLED
 
     // simulated Benewake tf02 rangefinder:
     SITL::RF_Benewake_TF02 *benewake_tf02;
@@ -166,7 +164,7 @@ private:
     // SITL::Frsky_SPort *frsky_sport;
     // SITL::Frsky_SPortPassthrough *frsky_sportpassthrough;
 
-#if AP_SIM_PS_RPLIDARA2_ENABLED
+#if HAL_SIM_PS_RPLIDARA2_ENABLED
     // simulated RPLidarA2:
     SITL::PS_RPLidarA2 *rplidara2;
 #endif
@@ -174,12 +172,12 @@ private:
     // simulated FETtec OneWire ESCs:
     SITL::FETtecOneWireESC *fetteconewireesc;
 
-#if AP_SIM_PS_LIGHTWARE_SF45B_ENABLED
+#if HAL_SIM_PS_LIGHTWARE_SF45B_ENABLED
     // simulated SF45B proximity sensor:
     SITL::PS_LightWare_SF45B *sf45b;
 #endif
 
-#if AP_SIM_PS_TERARANGERTOWER_ENABLED
+#if HAL_SIM_PS_TERARANGERTOWER_ENABLED
     SITL::PS_TeraRangerTower *terarangertower;
 #endif
 
@@ -199,13 +197,13 @@ private:
 
     // simulated InertialLabs INS-U
     SITL::InertialLabs *inertiallabs;
-
-#if AP_SIM_JSON_MASTER_ENABLED
+    
+#if HAL_SIM_JSON_MASTER_ENABLED
     // Ride along instances via JSON SITL backend
     SITL::JSON_Master ride_along;
-#endif  // AP_SIM_JSON_MASTER_ENABLED
+#endif
 
-#if AP_SIM_AIS_ENABLED
+#if HAL_SIM_AIS_ENABLED
     // simulated AIS stream
     SITL::AIS *ais;
 #endif
@@ -227,7 +225,7 @@ private:
 
     uint32_t wind_start_delay_micros;
 
-#if AP_SIM_GPS_ENABLED
+#if HAL_SIM_GPS_ENABLED
     // simulated GPS devices
     SITL::GPS *gps[2];  // constrained by # of parameter sets
 #endif

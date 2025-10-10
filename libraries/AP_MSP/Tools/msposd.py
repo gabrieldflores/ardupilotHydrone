@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # flake8: noqa
 '''
 A tool to view MSP telemetry, simulating a DJI FPV display

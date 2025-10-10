@@ -354,8 +354,7 @@ void SRV_Channels::set_output_pwm(SRV_Channel::Function function, uint16_t value
     if (!function_assigned(function)) {
         return;
     }
-    // channels is a pointer assigned from obj_channels:
-    for (uint8_t i = 0; i < ARRAY_SIZE(obj_channels); i++) {
+    for (uint8_t i = 0; i < NUM_SERVO_CHANNELS; i++) {
         if (channels[i].function == function) {
             channels[i].set_output_pwm(value);
             channels[i].output_ch();

@@ -12,16 +12,6 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
- /*
- add_motor_raw(AP_MOTORS_MOT_1, -0.631, -0.742, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 1);
-add_motor_raw(AP_MOTORS_MOT_2, -0.613, 0.523, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 2);
-add_motor_raw(AP_MOTORS_MOT_3, 0.624, 0.525, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 3);
-add_motor_raw(AP_MOTORS_MOT_4, 0.606, -0.742, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 4);
-add_motor_raw(AP_MOTORS_MOT_5, 0.333, 0.719, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 5);
-add_motor_raw(AP_MOTORS_MOT_6, -0.323, 0.719, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 6);
-add_motor_raw(AP_MOTORS_MOT_7, 0.005, -1, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 7);
-*/
 
 #include <AP_HAL/AP_HAL.h>
 #include "AP_MotorsMatrix.h"
@@ -426,7 +416,7 @@ void AP_MotorsMatrix::output_armed_stabilizing()
 void AP_MotorsMatrix::check_for_failed_motor(float throttle_thrust_best_plus_adj)
 {
     // record filtered and scaled thrust output for motor loss monitoring purposes
-    float alpha = _dt_s / (_dt_s + 0.5f);
+    float alpha = _dt / (_dt + 0.5f);
     for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
         if (motor_enabled[i]) {
             _thrust_rpyt_out_filt[i] += alpha * (_thrust_rpyt_out[i] - _thrust_rpyt_out_filt[i]);
@@ -609,60 +599,6 @@ bool AP_MotorsMatrix::setup_quad_matrix(motor_frame_type frame_type)
         add_motors(motors, ARRAY_SIZE(motors));
         break;
     }
-    case MOTOR_FRAME_TYPE_HYDRONE: {
-        _frame_type_string = "HYDRONE";
-        static const AP_MotorsMatrix::MotorDef motors[] {
-            {   45, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  1 },
-            { -135, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  3 },
-            {  -45, AP_MOTORS_MATRIX_YAW_FACTOR_CW,   4 },
-            {  135, AP_MOTORS_MATRIX_YAW_FACTOR_CW,   2 },
-        };
-        add_motors(motors, ARRAY_SIZE(motors));
-        break;
-    }
-        /*static const AP_MotorsMatrix::MotorDef motors[] {
-            {  45, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  1 },
-            { 135, AP_MOTORS_MATRIX_YAW_FACTOR_CW,   2 },
-            {-135, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  3 },
-            { -45, AP_MOTORS_MATRIX_YAW_FACTOR_CW,   4 },
-            { 135, AP_MOTORS_MATRIX_YAW_FACTOR_CW,   5 },
-            {  45, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  6 },
-            { -90, AP_MOTORS_MATRIX_YAW_FACTOR_CW,   7 },
-        };
-        add_motors(motors, ARRAY_SIZE(motors));
-        *//*
-        add_motor_raw(AP_MOTORS_MOT_1, -1, -1, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 1);
-        add_motor_raw(AP_MOTORS_MOT_2, -1,  1, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 2);
-        add_motor_raw(AP_MOTORS_MOT_3,  1,  1, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 3);
-        add_motor_raw(AP_MOTORS_MOT_4,  1, -1, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 4);
-    
-        // ---- Motores aquáticos ----
-        // Motor 5 - aquático horizontal esquerdo (frente/ré + yaw)
-        add_motor_raw(AP_MOTORS_MOT_5, 0.0, 0.0, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 5);
-    
-        // Motor 6 - aquático horizontal direito (frente/ré + yaw inverso)
-        add_motor_raw(AP_MOTORS_MOT_6, 0.0, 0.0, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 6);
-    
-        // Motor 7 - aquático vertical (flutuação apenas)
-        add_motor_raw(AP_MOTORS_MOT_7, 0.0, 0.0, 0.0, 7);
-        
-        add_motor(AP_MOTORS_MOT_1, -1, -1, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 1);
-        add_motor(AP_MOTORS_MOT_2, -1,  1, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 2);
-        add_motor(AP_MOTORS_MOT_3,  1,  1, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 3);
-        add_motor(AP_MOTORS_MOT_4,  1, -1, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 4);
-    
-        // ---- Motores aquáticos ----
-        // Motor 5 - aquático horizontal esquerdo (frente/ré + yaw)
-        add_motor(AP_MOTORS_MOT_5, 0.0, 0.0, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 5);
-    
-        // Motor 6 - aquático horizontal direito (frente/ré + yaw inverso)
-        add_motor(AP_MOTORS_MOT_6, 0.0, 0.0, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 6);
-    
-        // Motor 7 - aquático vertical (flutuação apenas)
-        add_motor(AP_MOTORS_MOT_7, 0.0, 0.0, 0.0, 7);
-        
-        break;
-    }*/
 #if APM_BUILD_TYPE(APM_BUILD_ArduPlane) || APM_BUILD_TYPE(APM_BUILD_UNKNOWN)
     case MOTOR_FRAME_TYPE_NYT_PLUS: {
         _frame_type_string = "NYT_PLUS";
@@ -1317,9 +1253,6 @@ void AP_MotorsMatrix::setup_motors(motor_frame_class frame_class, motor_frame_ty
     switch (frame_class) {
 #if AP_MOTORS_FRAME_QUAD_ENABLED
     case MOTOR_FRAME_QUAD:
-        success = setup_quad_matrix(frame_type);
-        break;  // quad
-    case MOTOR_FRAME_HYDRONE:
         success = setup_quad_matrix(frame_type);
         break;  // quad
 #endif //AP_MOTORS_FRAME_QUAD_ENABLED

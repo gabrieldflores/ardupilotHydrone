@@ -135,13 +135,12 @@ void SIMState::fdm_input_local(void)
     if (gimbal != nullptr) {
         gimbal->update();
     }
-#endif  // AP_SIM_SOLOGIMBAL_ENABLED
-#if AP_SIM_ADSB_ENABLED
+#endif
+#if HAL_SIM_ADSB_ENABLED
     if (adsb != nullptr) {
         adsb->update();
     }
-#endif  // AP_SIM_ADSB_ENABLED
-#if AP_SIM_VICON_ENABLED
+#endif
     if (vicon != nullptr) {
         Quaternion attitude;
         sitl_model->get_attitude(attitude);
@@ -150,7 +149,6 @@ void SIMState::fdm_input_local(void)
                       sitl_model->get_velocity_ef(),
                       attitude);
     }
-#endif  // AP_SIM_VICON_ENABLED
     if (benewake_tf02 != nullptr) {
         benewake_tf02->update(sitl_model->rangefinder_range());
     }
@@ -219,19 +217,19 @@ void SIMState::fdm_input_local(void)
     }
 #endif
 
-#if AP_SIM_PS_RPLIDARA2_ENABLED
+#if HAL_SIM_PS_RPLIDARA2_ENABLED
     if (rplidara2 != nullptr) {
         rplidara2->update(sitl_model->get_location());
     }
 #endif
 
-#if AP_SIM_PS_TERARANGERTOWER_ENABLED
+#if HAL_SIM_PS_TERARANGERTOWER_ENABLED
     if (terarangertower != nullptr) {
         terarangertower->update(sitl_model->get_location());
     }
 #endif
 
-#if AP_SIM_PS_LIGHTWARE_SF45B_ENABLED
+#if HAL_SIM_PS_LIGHTWARE_SF45B_ENABLED
     if (sf45b != nullptr) {
         sf45b->update(sitl_model->get_location());
     }
@@ -248,7 +246,7 @@ void SIMState::fdm_input_local(void)
         inertiallabs->update();
     }
 
-#if AP_SIM_AIS_ENABLED
+#if HAL_SIM_AIS_ENABLED
     if (ais != nullptr) {
         ais->update();
     }
@@ -326,7 +324,7 @@ void SIMState::_simulator_servos(struct sitl_input &input)
     input.wind.turbulence = _sitl->wind_turbulance;
     input.wind.dir_z = wind_dir_z;
 
-    for (uint8_t i=0; i<ARRAY_SIZE(pwm_output); i++) {
+    for (uint8_t i=0; i<SITL_NUM_CHANNELS; i++) {
         if (pwm_output[i] == 0xFFFF) {
             input.servos[i] = 0;
         } else {

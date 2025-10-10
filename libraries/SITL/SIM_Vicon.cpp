@@ -14,11 +14,10 @@
  */
 /*
   simple vicon simulator class
+
+  XKFR
+
 */
-
-#include "SIM_config.h"
-
-#if AP_SIM_VICON_ENABLED
 
 #include "SIM_Vicon.h"
 #include <stdio.h>
@@ -482,5 +481,3 @@ void Vicon::update(const Location &loc, const Vector3d &position, const Vector3f
     maybe_send_heartbeat();
     update_vicon_position_estimate(loc, position, velocity, attitude);
 }
-
-#endif  // AP_SIM_VICON_ENABLED

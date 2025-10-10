@@ -74,10 +74,10 @@ public:
 
     // Sets the internal controller timestep (in seconds).
     // This is the elapsed time since the last controller update and is used in rate and smoothing calculations.
-    void set_dt_s(float dt_s) { _dt_s = dt_s; }
+    void set_dt(float dt) { _dt = dt; }
 
     // Returns the internal controller timestep (in seconds).
-    float get_dt_s() const { return _dt_s; }
+    float get_dt() const { return _dt; }
 
     // pid accessors
     AC_P& get_angle_roll_p() { return _p_angle_roll; }
@@ -147,8 +147,9 @@ public:
     // get the slew yaw rate limit in deg/s
     float get_slew_yaw_max_degs() const;
 
-    // get the slew yaw rate limit in rad/s
-    float get_slew_yaw_max_rads() const;
+    // Returns the maximum allowed yaw rate for setpoint slewing (in rad/s).
+    // This limit applies in modes like Loiter or RTL to constrain sudden yaw changes.
+    float get_slew_yaw_max_rads() const { return radians(get_slew_yaw_max_degs()); }
 
     // get the rate control input smoothing time constant
     float get_input_tc() const { return _input_tc; }
@@ -441,12 +442,8 @@ public:
     // Return configured tilt angle limit in centidegrees
     float lean_angle_max_cd() const { return _aparm.angle_max; }
 
-    // Return configured tilt angle limit in radians
-    float lean_angle_max_rad() const { return cd_to_rad(_aparm.angle_max); }
-
     // Return tilt angle in degrees
     float lean_angle_deg() const { return degrees(_thrust_angle_rad); }
-    float lean_angle_rad() const { return _thrust_angle_rad; }
 
     // Calculates the velocity correction from an angle error, applying acceleration/deceleration limits and a simple jerk-limiting mechanism via the smoothing gain.
     static float input_shaping_angle(float error_angle, float input_tc, float accel_max, float target_ang_vel, float desired_ang_vel, float max_ang_vel, float dt);
@@ -506,10 +503,6 @@ public:
     // Return angle in centidegrees to be added to roll angle for hover collective learn. Used by heli to counteract
     // tail rotor thrust in hover. Overloaded by AC_Attitude_Heli to return angle.
     virtual float get_roll_trim_cd() { return 0;}
-
-    // Return angle in radians to be added to roll angle. Used by heli to counteract
-    // tail rotor thrust in hover. Overloaded by AC_Attitude_Heli to return angle.
-    float get_roll_trim_rad() { return cd_to_rad(get_roll_trim_cd()); }
 
     // passthrough_bf_roll_pitch_rate_yaw - roll and pitch are passed through directly, body-frame rate target for yaw
     // this assumes a maximum deflection rate of 45 degrees per second or pi/4 rad/s.
@@ -571,6 +564,10 @@ protected:
     // Update rate_target_ang_vel using attitude_error_rot_vec_rad
     Vector3f update_ang_vel_target_from_att_error(const Vector3f &attitude_error_rot_vec_rad);
 
+    // Return angle in radians to be added to roll angle. Used by heli to counteract
+    // tail rotor thrust in hover. Overloaded by AC_Attitude_Heli to return angle.
+    virtual float get_roll_trim_rad() { return 0;}
+
     // Returns the most recent angular velocity reading (rad/s) for the rate controller.
     // Ensures minimum latency when rate control is run before or after attitude control.
     const Vector3f get_latest_gyro() const;
@@ -621,7 +618,7 @@ protected:
     uint64_t            _rate_gyro_time_us;
 
     // Intersampling period in seconds
-    float               _dt_s;
+    float               _dt;
 
     // This represents a 321-intrinsic rotation in NED frame to the target (setpoint)
     // attitude used in the attitude controller, in radians.

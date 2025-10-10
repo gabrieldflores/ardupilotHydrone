@@ -124,6 +124,11 @@
 //SERIAL0_PROTOCOL 0
 
 
+// see boards.py
+#ifndef ENABLE_HEAP
+#define ENABLE_HEAP 1
+#endif
+
 #define WIFI_SSID "ardupilot123"
 #define WIFI_PWD "ardupilot123"
 

@@ -361,21 +361,13 @@
 //
 
 // Acro Mode
-#ifndef ACRO_LEVEL_MAX_ANGLE_RAD
- # define ACRO_LEVEL_MAX_ANGLE_RAD      radians(30.0)   // maximum lean angle in trainer mode measured in radians
+#ifndef ACRO_LEVEL_MAX_ANGLE
+ # define ACRO_LEVEL_MAX_ANGLE      3000 // maximum lean angle in trainer mode measured in centidegrees
 #endif
 
-#ifdef ACRO_LEVEL_MAX_ANGLE
-#error "Please update your hwdef to use ACRO_LEVEL_MAX_ANGLE_RAD, not ACRO_LEVEL_MAX_ANGLE"
-#endif // ACRO_LEVEL_MAX_ANGLE
-
-#ifndef ACRO_LEVEL_MAX_OVERSHOOT_RAD
- # define ACRO_LEVEL_MAX_OVERSHOOT_RAD  radians(10.0) // maximum overshoot angle in trainer mode when full roll or pitch stick is held in radians
+#ifndef ACRO_LEVEL_MAX_OVERSHOOT
+ # define ACRO_LEVEL_MAX_OVERSHOOT  1000 // maximum overshoot angle in trainer mode when full roll or pitch stick is held in centidegrees
 #endif
-
-#ifdef ACRO_LEVEL_MAX_OVERSHOOT
-#error "Please update your hwdef to use ACRO_LEVEL_MAX_OVERSHOOT_RAD, not ACRO_LEVEL_MAX_OVERSHOOT"
-#endif // ACRO_LEVEL_MAX_OVERSHOOT
 
 #ifndef ACRO_BALANCE_ROLL
  #define ACRO_BALANCE_ROLL          1.0f
