@@ -1,0 +1,10 @@
+UARTV1
+SERIAL0 TX=  257906 RX=    4533 TXBD= 38088 RXBD=   669 connected     (tcp:0:wait)
+SERIAL1 TX=       0 RX=       0 TXBD=     0 RXBD=     0 not connected (tcp:2)
+SERIAL2 TX=       0 RX=       0 TXBD=     0 RXBD=     0 not connected (tcp:3)
+SERIAL3 TX=    9831 RX=  138876 TXBD=  1451 RXBD= 20509 connected     (GPS1)
+SERIAL4 TX=       0 RX=       0 TXBD=     0 RXBD=     0 connected     (GPS2)
+SERIAL5 TX=       0 RX=       0 TXBD=     0 RXBD=     0 not connected (tcp:5)
+SERIAL6 TX=       0 RX=       0 TXBD=     0 RXBD=     0 not connected (tcp:6)
+SERIAL7 TX=       0 RX=       0 TXBD=     0 RXBD=     0 not connected (tcp:7)
+SERIAL8 TX=       0 RX=       0 TXBD=     0 RXBD=     0 not connected (tcp:8)
