@@ -611,7 +611,7 @@ bool AP_MotorsMatrix::setup_quad_matrix(motor_frame_type frame_type)
     }
     case MOTOR_FRAME_TYPE_HYDRONE: {
         _frame_type_string = "HYDRONE";
-        static const AP_MotorsMatrix::MotorDef motors[] {
+        /*static const AP_MotorsMatrix::MotorDef motors[] {
             {   45, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  1 },
             { -135, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  3 },
             {  -45, AP_MOTORS_MATRIX_YAW_FACTOR_CW,   4 },
@@ -619,8 +619,8 @@ bool AP_MotorsMatrix::setup_quad_matrix(motor_frame_type frame_type)
         };
         add_motors(motors, ARRAY_SIZE(motors));
         break;
-    }
-        /*static const AP_MotorsMatrix::MotorDef motors[] {
+    }*/
+        static const AP_MotorsMatrix::MotorDef motors[] {
             {  45, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  1 },
             { 135, AP_MOTORS_MATRIX_YAW_FACTOR_CW,   2 },
             {-135, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  3 },
@@ -630,7 +630,9 @@ bool AP_MotorsMatrix::setup_quad_matrix(motor_frame_type frame_type)
             { -90, AP_MOTORS_MATRIX_YAW_FACTOR_CW,   7 },
         };
         add_motors(motors, ARRAY_SIZE(motors));
-        *//*
+        break;
+    }
+        /*//*
         add_motor_raw(AP_MOTORS_MOT_1, -1, -1, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 1);
         add_motor_raw(AP_MOTORS_MOT_2, -1,  1, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 2);
         add_motor_raw(AP_MOTORS_MOT_3,  1,  1, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 3);
