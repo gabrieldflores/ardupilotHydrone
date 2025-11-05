@@ -162,6 +162,7 @@ private:
 
     // setup motors matrix
     bool setup_quad_matrix(motor_frame_type frame_type);
+    bool setup_hydrone_matrix(motor_frame_type frame_type);
     bool setup_hexa_matrix(motor_frame_type frame_type);
     bool setup_octa_matrix(motor_frame_type frame_type);
     bool setup_deca_matrix(motor_frame_type frame_type);

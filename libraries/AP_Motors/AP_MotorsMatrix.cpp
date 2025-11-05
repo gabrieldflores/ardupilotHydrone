@@ -581,6 +581,30 @@ void AP_MotorsMatrix::add_motors_raw(const struct MotorDefRaw *motors, uint8_t n
         add_motor_raw(i, m.roll_fac, m.pitch_fac, m.yaw_fac, m.testing_order);
     }
 }
+bool AP_MotorsMatrix::setup_hydrone_matrix(motor_frame_type frame_type)
+{
+    _frame_class_string = "HYDRONE";
+    _mav_type = MAV_TYPE_QUADROTOR;
+    switch (frame_type) {
+    case MOTOR_FRAME_TYPE_PLUS: {
+        _frame_type_string = "HYDRONE";
+        static const AP_MotorsMatrix::MotorDef motors[] {
+            {  45, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  1 },
+            { 135, AP_MOTORS_MATRIX_YAW_FACTOR_CW,   2 },
+            {-135, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  3 },
+            { -45, AP_MOTORS_MATRIX_YAW_FACTOR_CW,   4 },
+            {  90, AP_MOTORS_MATRIX_YAW_FACTOR_CW,   5 },
+            { 179, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  6 },
+            { -90, AP_MOTORS_MATRIX_YAW_FACTOR_CW,   7 },
+        };
+        add_motors(motors, ARRAY_SIZE(motors));
+        break;
+    }
+    default :
+        return false;
+    }
+    return true;
+}
 #if AP_MOTORS_FRAME_QUAD_ENABLED
 bool AP_MotorsMatrix::setup_quad_matrix(motor_frame_type frame_type)
 {
@@ -609,7 +633,7 @@ bool AP_MotorsMatrix::setup_quad_matrix(motor_frame_type frame_type)
         add_motors(motors, ARRAY_SIZE(motors));
         break;
     }
-    case MOTOR_FRAME_TYPE_HYDRONE: {
+    /*case MOTOR_FRAME_TYPE_HYDRONE: {
         _frame_type_string = "HYDRONE";
         /*static const AP_MotorsMatrix::MotorDef motors[] {
             {   45, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  1 },
@@ -620,35 +644,35 @@ bool AP_MotorsMatrix::setup_quad_matrix(motor_frame_type frame_type)
         add_motors(motors, ARRAY_SIZE(motors));
         break;
     }*/
-        static const AP_MotorsMatrix::MotorDef motors[] {
+        /*static const AP_MotorsMatrix::MotorDef motors[] {
             {  45, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  1 },
             { 135, AP_MOTORS_MATRIX_YAW_FACTOR_CW,   2 },
             {-135, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  3 },
             { -45, AP_MOTORS_MATRIX_YAW_FACTOR_CW,   4 },
-            { 135, AP_MOTORS_MATRIX_YAW_FACTOR_CW,   5 },
-            {  45, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  6 },
+            {  90, AP_MOTORS_MATRIX_YAW_FACTOR_CW,   5 },
+            { 179, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  6 },
             { -90, AP_MOTORS_MATRIX_YAW_FACTOR_CW,   7 },
         };
         add_motors(motors, ARRAY_SIZE(motors));
         break;
-    }
-        /*//*
-        add_motor_raw(AP_MOTORS_MOT_1, -1, -1, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 1);
-        add_motor_raw(AP_MOTORS_MOT_2, -1,  1, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 2);
-        add_motor_raw(AP_MOTORS_MOT_3,  1,  1, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 3);
-        add_motor_raw(AP_MOTORS_MOT_4,  1, -1, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 4);
+    }*/
+        
+        //add_motor_raw(AP_MOTORS_MOT_1, -1, -1, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 1);
+        //add_motor_raw(AP_MOTORS_MOT_2, -1,  1, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 2);
+        //add_motor_raw(AP_MOTORS_MOT_3,  1,  1, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 3);
+        //add_motor_raw(AP_MOTORS_MOT_4,  1, -1, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 4);
     
         // ---- Motores aquáticos ----
         // Motor 5 - aquático horizontal esquerdo (frente/ré + yaw)
-        add_motor_raw(AP_MOTORS_MOT_5, 0.0, 0.0, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 5);
+        //add_motor_raw(AP_MOTORS_MOT_5, 0.0, 0.0, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 5);
     
         // Motor 6 - aquático horizontal direito (frente/ré + yaw inverso)
-        add_motor_raw(AP_MOTORS_MOT_6, 0.0, 0.0, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 6);
+        //add_motor_raw(AP_MOTORS_MOT_6, 0.0, 0.0, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 6);
     
         // Motor 7 - aquático vertical (flutuação apenas)
-        add_motor_raw(AP_MOTORS_MOT_7, 0.0, 0.0, 0.0, 7);
+        //add_motor_raw(AP_MOTORS_MOT_7, 0.0, 0.0, 0.0, 7);
         
-        add_motor(AP_MOTORS_MOT_1, -1, -1, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 1);
+        /*add_motor(AP_MOTORS_MOT_1, -1, -1, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 1);
         add_motor(AP_MOTORS_MOT_2, -1,  1, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 2);
         add_motor(AP_MOTORS_MOT_3,  1,  1, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 3);
         add_motor(AP_MOTORS_MOT_4,  1, -1, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 4);
@@ -663,8 +687,10 @@ bool AP_MotorsMatrix::setup_quad_matrix(motor_frame_type frame_type)
         // Motor 7 - aquático vertical (flutuação apenas)
         add_motor(AP_MOTORS_MOT_7, 0.0, 0.0, 0.0, 7);
         
-        break;
-    }*/
+        break;*/
+        
+        //break;
+    //}
 #if APM_BUILD_TYPE(APM_BUILD_ArduPlane) || APM_BUILD_TYPE(APM_BUILD_UNKNOWN)
     case MOTOR_FRAME_TYPE_NYT_PLUS: {
         _frame_type_string = "NYT_PLUS";
@@ -1317,13 +1343,17 @@ void AP_MotorsMatrix::setup_motors(motor_frame_class frame_class, motor_frame_ty
     bool success = true;
 
     switch (frame_class) {
+    case MOTOR_FRAME_HYDRONE:
+        success = setup_hydrone_matrix(frame_type);
+        break;
 #if AP_MOTORS_FRAME_QUAD_ENABLED
     case MOTOR_FRAME_QUAD:
         success = setup_quad_matrix(frame_type);
+        //success = setup_hydrone_matrix(frame_type);
         break;  // quad
-    case MOTOR_FRAME_HYDRONE:
-        success = setup_quad_matrix(frame_type);
-        break;  // quad
+    //case MOTOR_FRAME_HYDRONE:
+    //    success = setup_hydrone_matrix(frame_type);
+    //    break;
 #endif //AP_MOTORS_FRAME_QUAD_ENABLED
 #if AP_MOTORS_FRAME_HEXA_ENABLED
     case MOTOR_FRAME_HEXA:

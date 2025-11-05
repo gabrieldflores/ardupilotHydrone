@@ -55,8 +55,8 @@ static Motor hydrone_motors[] =
 
     // --- Motores aquáticos horizontais (frente/ré, yaw neutro ou custom) ---
     // Exemplo: empuxo para frente (+X) e trás (-X)
-    Motor(AP_MOTORS_MOT_5,    0,  0.0f, 5), // forward thruster
-    Motor(AP_MOTORS_MOT_6,  180, 0.0f, 6), // backward thruster
+    //Motor(AP_MOTORS_MOT_5,    0,  0.0f, 5), // forward thruster
+    //Motor(AP_MOTORS_MOT_6,  180, 0.0f, 6), // backward thruster
 
     // --- Motor de flutuação (empuxo vertical sem yaw) ---
     Motor(AP_MOTORS_MOT_7,   90, 0.0f, 7), // buoyancy / vertical
@@ -396,10 +396,14 @@ static Motor firefly_motors[] =
  */
 static Frame supported_frames[] =
 {
-    Frame("+",         4, quad_plus_motors),
-    Frame("quad",      4, quad_plus_motors),
-    Frame("copter",    4, quad_plus_motors),
-    Frame("x",         4, quad_x_motors),
+    //Frame("+",         4, quad_plus_motors),
+    //Frame("quad",      4, quad_plus_motors),
+    //Frame("copter",    4, quad_plus_motors),
+    //Frame("x",         4, quad_x_motors),
+    Frame("+",         7, hydrone_motors),
+    Frame("quad",      7, hydrone_motors),
+    Frame("copter",    7, hydrone_motors),
+    Frame("x",         7, quad_x_motors),
     Frame("hydrone",    7, hydrone_motors),
     //Frame("hydrone",    4, hydrone_motors),
     Frame("bfxrev",    4, quad_bf_x_rev_motors),
